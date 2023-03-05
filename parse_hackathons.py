@@ -36,16 +36,7 @@ for hackathon in hackathons:
         # если имя есть, забираем текст и добавляем в список
     if name_of_hack:
         name = name_of_hack.text
-        #names_of_hackathons.append(name)
-    
-    
-        # ищем div с описанием
-    '''place_of_hackathon = hackathon.find('div', class_='t776__descr').find('br')
-    if place_of_hackathon:
-        place = place_of_hackathon.previous_sibling
-        if place is not None:
-            place = place.strip()'''
-            
+
     description = hackathon.find('div', class_='t776__descr')
     if description:
         for element in description:
@@ -54,14 +45,20 @@ for hackathon in hackathons:
                 lines.append(text.strip())
                 
     place = lines[0]
+    
     info_hackathons[count_of_hackathons].update({'name': name, 'place': place})
     
     lines = lines[1:]
+    lines = '\n'.join(lines)
+    lines = lines.split('\n')
+    lines = [t.strip() for t in lines if t.strip()]
+    if count_of_hackathons == 0 or count_of_hackathons == 1:
+        lines[lines.index('Редактировать:')] = 'Регистрация:'
     for i in range(0, len(lines) - 1, 2):
         key = lines[i].strip(':')
         value = lines[i + 1]
         info_hackathons[count_of_hackathons].update({key: value})
         
     count_of_hackathons += 1
-    
-print(info_hackathons)
+
+#print(info_hackathons)
