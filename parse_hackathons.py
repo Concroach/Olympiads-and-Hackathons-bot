@@ -8,14 +8,14 @@ headers = {
 }
 
     # запрос
-url = "https://www.хакатоны.рф/"
-response = requests.get(url, headers=headers)
+#url = "https://www.хакатоны.рф/"
+#response = requests.get(url, headers=headers)
 
     # сохраняем html
-with open("page_content.html", "w", encoding="utf-8") as file:
-     file.write(response.text)
+#with open("page_content.html", "w", encoding="utf-8") as file:
+#     file.write(response.text)
 
-    # открываем html
+ #   # открываем html
 with open ('page_content.html', 'r', encoding="utf-8") as file:
     src = file.read()
     
@@ -30,13 +30,18 @@ count_of_hackathons = 0
     # перебираем каждый хакатон
 for hackathon in hackathons:
     lines = []
-    info_hackathons.append({})
         # ищем div с названием хакатона
     name_of_hack = hackathon.find('div', class_='t776__title').find('div')
         # если имя есть, забираем текст и добавляем в список
     if name_of_hack:
         name = name_of_hack.text
-
+    false_names = ['ХАКАТОН ДЛЯ ПРОГРАММИСТОВ-РОБОТОТЕХНИКОВ «РОСНЕФТИ»!', 'HackWagon22', 'Tender Hack Москва', 'Всероссийский хакатон', 'FIT - M 2022', 'PRO_НАНО', 'Югорский хакатон «ХАНТАТОН – 2022»',
+                   'Приборостроение – 2023', 'Культурно-образовательный хакатон «История будущего»', 'Hackathon </beCoder> 2022', 'Data Fusion Contest 2023', '2022']
+    if name in false_names:
+        continue
+    
+    info_hackathons.append({})
+    
     description = hackathon.find('div', class_='t776__descr')
     if description:
         for element in description:
@@ -62,3 +67,48 @@ for hackathon in hackathons:
     count_of_hackathons += 1
 
 #print(info_hackathons)
+# Create a dictionary to convert month names to numbers
+month_dict = {
+    'января': 1,
+    'февраля': 2,
+    'марта': 3,
+    'апреля': 4,
+    'мая': 5,
+    'июня': 6,
+    'июля': 7,
+    'августа': 8,
+    'сентября': 9,
+    'октября': 10,
+    'ноября': 11,
+    'декабря': 12
+}
+
+reg_dates = []
+
+for event in info_hackathons:
+    try:
+        reg_date_str = event['Регистрация']
+        
+        words = reg_date_str.split()
+        
+        day = None
+        month = None
+        
+        for word in words:
+            if word.isdigit() and (len(word) == 1 or len(word) == 2):
+                day = int(word)
+            elif word in month_dict:
+                month = month_dict[word]
+            if day is not None and month is not None:
+                reg_date = datetime.date(year=2023, month=month, day=day)
+                reg_dates.append(reg_date)
+    except:
+        reg_dates.append(datetime.date(year=2000, month=1, day=1))
+        
+today = datetime.date.today()
+for i in range(len(info_hackathons)):
+    if reg_dates[i] < today:
+        if len(info_hackathons) > i:
+            del info_hackathons[i]
+
+print(info_hackathons)
