@@ -29,19 +29,14 @@ count_of_hackathons = 0
 
     # перебираем каждый хакатон
 for hackathon in hackathons:
+    info_hackathons.append({})
     lines = []
         # ищем div с названием хакатона
     name_of_hack = hackathon.find('div', class_='t776__title').find('div')
         # если имя есть, забираем текст и добавляем в список
     if name_of_hack:
         name = name_of_hack.text
-    false_names = ['ХАКАТОН ДЛЯ ПРОГРАММИСТОВ-РОБОТОТЕХНИКОВ «РОСНЕФТИ»!', 'HackWagon22', 'Tender Hack Москва', 'Всероссийский хакатон', 'FIT - M 2022', 'PRO_НАНО', 'Югорский хакатон «ХАНТАТОН – 2022»',
-                   'Приборостроение – 2023', 'Культурно-образовательный хакатон «История будущего»', 'Hackathon </beCoder> 2022', 'Data Fusion Contest 2023', '2022']
-    if name in false_names:
-        continue
-    
-    info_hackathons.append({})
-    
+        
     description = hackathon.find('div', class_='t776__descr')
     if description:
         for element in description:
@@ -57,8 +52,10 @@ for hackathon in hackathons:
     lines = '\n'.join(lines)
     lines = lines.split('\n')
     lines = [t.strip() for t in lines if t.strip()]
-    if count_of_hackathons == 0 or count_of_hackathons == 1:
+    try:
         lines[lines.index('Редактировать:')] = 'Регистрация:'
+    except:
+        pass
     for i in range(0, len(lines) - 1, 2):
         key = lines[i].strip(':')
         value = lines[i + 1]
@@ -66,8 +63,7 @@ for hackathon in hackathons:
         
     count_of_hackathons += 1
 
-#print(info_hackathons)
-# Create a dictionary to convert month names to numbers
+
 month_dict = {
     'января': 1,
     'февраля': 2,
@@ -88,9 +84,7 @@ reg_dates = []
 for event in info_hackathons:
     try:
         reg_date_str = event['Регистрация']
-        
-        words = reg_date_str.split()
-        
+        words = reg_date_str.split()        
         day = None
         month = None
         
@@ -105,10 +99,12 @@ for event in info_hackathons:
     except:
         reg_dates.append(datetime.date(year=2000, month=1, day=1))
         
+asd = []
 today = datetime.date.today()
 for i in range(len(info_hackathons)):
     if reg_dates[i] < today:
-        if len(info_hackathons) > i:
-            del info_hackathons[i]
+        asd.append(i)
 
-print(info_hackathons)
+info_hackathons = info_hackathons[0:asd[1] + 5]
+for i in range(len(info_hackathons)):
+    print(info_hackathons[i]['name'])
