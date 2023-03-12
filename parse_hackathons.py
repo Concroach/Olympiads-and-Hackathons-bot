@@ -8,11 +8,11 @@ headers = {
 }
 
     # запрос
-#url = "https://www.хакатоны.рф/"
-#response = requests.get(url, headers=headers)
+# url = "https://www.хакатоны.рф/"
+# response = requests.get(url, headers=headers)
 
-    # сохраняем html
-#with open("page_content.html", "w", encoding="utf-8") as file:
+#     # сохраняем html
+# with open("page_content.html", "w", encoding="utf-8") as file:
 #     file.write(response.text)
 
  #   # открываем html
@@ -21,33 +21,32 @@ with open ('page_content.html', 'r', encoding="utf-8") as file:
     
     # находим все хакатоны // hackathons - список из html кода каждого хакатона
 soup = BeautifulSoup(src, 'html.parser')
-hackathons = soup.find_all('div', class_='t776')
+hackathons = soup.find_all('div', class_='t776__textwrapper')
 
-    # названия хакатонов 
-info_hackathons = []
-count_of_hackathons = 0
+info_hackathons = [] # список словарей с информацией о хакатонах
+count_of_hackathons = 0 # число хакатонов
 
-    # перебираем каждый хакатон
 for hackathon in hackathons:
     info_hackathons.append({})
     lines = []
-        # ищем div с названием хакатона
+    # название хакатона
     name_of_hack = hackathon.find('div', class_='t776__title').find('div')
-        # если имя есть, забираем текст и добавляем в список
     if name_of_hack:
         name = name_of_hack.text
-        
+    # описание хакатона
     description = hackathon.find('div', class_='t776__descr')
     if description:
         for element in description:
             text = element.get_text(separator="\n")
             if text.strip():
                 lines.append(text.strip())
-                
+    # место проведения
     place = lines[0]
     
+    # добавляем в словарь название и место
     info_hackathons[count_of_hackathons].update({'name': name, 'place': place})
     
+    # добавляем всю дргую инфу
     lines = lines[1:]
     lines = '\n'.join(lines)
     lines = lines.split('\n')
@@ -79,32 +78,31 @@ month_dict = {
     'декабря': 12
 }
 
+# получаем даты проведения хакатонов
 reg_dates = []
-
 for event in info_hackathons:
     try:
-        reg_date_str = event['Регистрация']
-        words = reg_date_str.split()        
-        day = None
-        month = None
+        reg_date_str = event['Хакатон']
+        reg_date_str = reg_date_str.replace("г.", "").replace("–", " ").replace("г", "").replace("с", "").replace("-", " ").strip().split()
         
-        for word in words:
-            if word.isdigit() and (len(word) == 1 or len(word) == 2):
-                day = int(word)
-            elif word in month_dict:
+        day = reg_date_str[0]
+        for word in reg_date_str:
+            if word in month_dict:
                 month = month_dict[word]
-            if day is not None and month is not None:
-                reg_date = datetime.date(year=2023, month=month, day=day)
-                reg_dates.append(reg_date)
-    except:
+                break
+        year = reg_date_str[-1]
+        if day is not None and month is not None:
+            reg_date = datetime.date(year=int(year), month=int(month), day=int(day))
+            reg_dates.append(reg_date)
+    except Exception as ex:
         reg_dates.append(datetime.date(year=2000, month=1, day=1))
         
-asd = []
+# получаем количество хакатонов, которые начинаются не менее, чем через 2 недели
+id_hack = []
 today = datetime.date.today()
 for i in range(len(info_hackathons)):
-    if reg_dates[i] < today:
-        asd.append(i)
-
-info_hackathons = info_hackathons[0:asd[1] + 5]
-for i in range(len(info_hackathons)):
-    print(info_hackathons[i]['name'])
+    if reg_dates[i] - datetime.timedelta(days=14) > today:
+        id_hack.append(i)
+        
+for i in info_hackathons[:len(id_hack)]:
+    print(i)
